@@ -308,9 +308,91 @@ oh_my_zsh_phase() {
   fi
 }
 
-p10k_fonts_phase() {
+ p10k_fonts_phase() {
   phase_header "Powerlevel10k 和字体安装阶段"
-  # TODO: 实现 p10k 和字体安装逻辑
+
+  local zsh_custom="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+  local p10k_dir="$zsh_custom/themes/powerlevel10k"
+  local fonts_dir="$HOME/Library/Fonts"
+
+  # 安装 powerlevel10k 主题
+  if [[ -d "$p10k_dir" ]]; then
+    log_info "powerlevel10k 已安装，跳过"
+  else
+    log_info "正在安装 powerlevel10k..."
+    if [[ "$DRY_RUN" == true ]]; then
+      log_info "[演练模式] 将执行: git clone --depth=1 https://github.com/romkatv/powerlevel10k.git $p10k_dir"
+    else
+      git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$p10k_dir"
+      log_success "powerlevel10k 安装完成"
+    fi
+  fi
+
+  # 下载 MesloLGS NF 字体
+  local font_base_url="https://github.com/romkatv/powerlevel10k-media/raw/master"
+  local -a fonts=(
+    "MesloLGS NF Regular.ttf"
+    "MesloLGS NF Bold.ttf"
+    "MesloLGS NF Italic.ttf"
+    "MesloLGS NF Bold Italic.ttf"
+  )
+  mkdir -p "$fonts_dir"
+  for font in "${fonts[@]}"; do
+    local font_path="$fonts_dir/$font"
+    if [[ -f "$font_path" ]]; then
+      log_info "字体已存在，跳过：$font"
+    else
+      log_info "下载字体：$font"
+      if [[ "$DRY_RUN" == true ]]; then
+        log_info "[演练模式] 将执行: curl 下载 $font 到 $fonts_dir"
+      else
+        curl -fsSL "$font_base_url/${font// /%20}" -o "$font_path"
+        log_success "字体下载完成：$font"
+      fi
+    fi
+  done
+
+  # 复制预置 p10k 配置（避免首次向导阻塞）
+  local script_dir
+  script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  local p10k_template="$script_dir/templates/p10k.zsh"
+  if [[ -f "$HOME/.p10k.zsh" ]]; then
+    log_info "~/.p10k.zsh 已存在，跳过复制"
+  elif [[ -f "$p10k_template" ]]; then
+    log_info "复制预置 p10k 配置到 ~/.p10k.zsh..."
+    [[ "$DRY_RUN" != true ]] && cp "$p10k_template" "$HOME/.p10k.zsh"
+  else
+    log_warn "未找到预置模板 $p10k_template，跳过 p10k 配置复制"
+  fi
+
+  # 写入 .zshrc
+  local zshrc="$HOME/.zshrc"
+
+  # 设置主题为 powerlevel10k
+  if grep -q 'ZSH_THEME=' "$zshrc" 2>/dev/null; then
+    log_info "更新 ZSH_THEME 为 powerlevel10k/powerlevel10k..."
+    [[ "$DRY_RUN" != true ]] && sed -i '' 's|ZSH_THEME=.*|ZSH_THEME="powerlevel10k/powerlevel10k"|' "$zshrc"
+  else
+    append_if_missing 'ZSH_THEME="powerlevel10k/powerlevel10k"' "$zshrc"
+  fi
+
+  # 禁用 powerlevel10k 配置向导
+  append_if_missing 'POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true' "$zshrc"
+
+  # source p10k.zsh（如存在）
+  append_if_missing '[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh' "$zshrc"
+
+  if [[ "$DRY_RUN" == true ]]; then
+    log_info "[演练模式] 将更新 ~/.zshrc 中的 ZSH_THEME、禁用向导、source p10k.zsh"
+    log_success "powerlevel10k 阶段演练完成"
+  else
+    log_info "------------------------------------------------------"
+    log_info "【人工步骤提示】安装完成后请在 iTerm2 中："
+    log_info "1. 前往「Preferences → Profiles → Text」"
+    log_info "2. 将字体改为「MesloLGS NF」"
+    log_info "如需个性化主题，运行 p10k configure"
+    log_info "------------------------------------------------------"
+  fi
 }
 
 nvm_node_phase() {
