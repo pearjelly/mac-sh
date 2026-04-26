@@ -455,8 +455,69 @@ nvm_node_phase() {
 }
 
 codex_claude_phase() {
-  phase_header "Codex 和 Claude Code 安装阶段"
-  # TODO: 实现 codex 和 claude 安装逻辑
+  phase_header "OpenAI Codex CLI 与 Claude Code 安装阶段"
+
+  # 确保 nvm 在当前进程可用（nvm 是 shell 函数，非可执行文件）
+  export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+  if [[ -s "$NVM_DIR/nvm.sh" ]]; then
+    # shellcheck source=/dev/null
+    . "$NVM_DIR/nvm.sh"
+  else
+    log_warn "nvm 未找到，npm 全局安装可能失败"
+  fi
+
+  if command -v codex &>/dev/null; then
+    log_info "Codex CLI 已安装（$(codex --version 2>/dev/null || echo '版本未知')），跳过"
+  else
+    log_info "正在安装 OpenAI Codex CLI（@openai/codex）..."
+    if [[ "$DRY_RUN" == true ]]; then
+      log_info "[演练模式] 将执行: npm install -g @openai/codex"
+    else
+      npm install -g @openai/codex
+      if command -v codex &>/dev/null; then
+        log_success "Codex CLI 安装完成：$(codex --version)"
+      else
+        log_error "Codex CLI 安装后未找到 codex 命令，请检查 npm 全局 PATH"
+      fi
+    fi
+  fi
+
+  if command -v claude &>/dev/null; then
+    log_info "Claude Code 已安装（$(claude --version 2>/dev/null || echo '版本未知')），跳过"
+  else
+    log_info "正在安装 Claude Code（@anthropic-ai/claude-code）..."
+    if [[ "$DRY_RUN" == true ]]; then
+      log_info "[演练模式] 将执行: npm install -g @anthropic-ai/claude-code"
+    else
+      npm install -g @anthropic-ai/claude-code
+      if command -v claude &>/dev/null; then
+        log_success "Claude Code 安装完成：$(claude --version)"
+      else
+        log_error "Claude Code 安装后未找到 claude 命令，请检查 npm 全局 PATH"
+      fi
+    fi
+  fi
+
+  log_info "======================================================"
+  log_info "【人工步骤摘要】以下步骤需要在脚本完成后手动完成："
+  log_info ""
+  log_info "1. 配置 Codex CLI："
+  log_info "   export OPENAI_API_KEY=\"<your-openai-key>\""
+  log_info "   codex                （启动 Codex CLI）"
+  log_info ""
+  log_info "2. 配置 Claude Code："
+  log_info "   claude                （首次运行，按提示完成 OAuth 授权）"
+  log_info "   或设置 ANTHROPIC_API_KEY："
+  log_info "   export ANTHROPIC_API_KEY=\"<your-anthropic-key>\""
+  log_info ""
+  log_info "3. 将 API Key 永久写入 ~/.zshrc 或 ~/.zprofile（可选）："
+  log_info "   echo 'export OPENAI_API_KEY=\"xxx\"' >> ~/.zshrc"
+  log_info "   echo 'export ANTHROPIC_API_KEY=\"xxx\"' >> ~/.zshrc"
+  log_info "======================================================"
+
+  if [[ "$DRY_RUN" == true ]]; then
+    log_success "CLI 安装阶段演练完成"
+  fi
 }
 
 uv_phase() {
