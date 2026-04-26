@@ -271,7 +271,61 @@ p10k_fonts_phase() {
 
 nvm_node_phase() {
   phase_header "NVM 和 Node.js 安装阶段"
-  # TODO: 实现 nvm 和 node 安装逻辑
+
+  local nvm_dir="${NVM_DIR:-$HOME/.nvm}"
+
+  if [[ -s "$nvm_dir/nvm.sh" ]]; then
+    log_info "nvm 已安装，跳过安装"
+  else
+    log_info "正在安装 nvm..."
+    if [[ "$DRY_RUN" == true ]]; then
+      log_info "[演练模式] 将执行: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/HEAD/install.sh | bash"
+    else
+      curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/HEAD/install.sh | bash
+    fi
+  fi
+
+  # 在当前进程中 source nvm（关键：nvm 是 shell 函数，不是可执行文件）
+  export NVM_DIR="$nvm_dir"
+  if [[ -s "$NVM_DIR/nvm.sh" ]]; then
+    log_info "加载 nvm 到当前进程..."
+    # shellcheck source=/dev/null
+    . "$NVM_DIR/nvm.sh"
+  elif [[ "$DRY_RUN" != true ]]; then
+    log_error "nvm 安装后仍未找到 $NVM_DIR/nvm.sh，安装失败"
+  fi
+
+  if [[ "$DRY_RUN" != true ]]; then
+    log_info "安装 LTS Node..."
+    nvm install --lts
+    nvm alias default lts/*
+    log_success "Node 安装完成：$(node --version)，npm：$(npm --version)"
+  else
+    log_info "[演练模式] 将执行: nvm install --lts && nvm alias default lts/*"
+  fi
+
+  local zshrc="$HOME/.zshrc"
+  local nvm_init_marker="# nvm 初始化"
+  local nvm_init_line1='export NVM_DIR="$HOME/.nvm"'
+  local nvm_init_line2='[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'
+  local nvm_init_line3='[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"'
+
+  if grep -qF "$nvm_init_marker" "$zshrc" 2>/dev/null; then
+    log_info "nvm 初始化已存在于 ~/.zshrc，跳过"
+  else
+    log_info "写入 nvm 初始化到 ~/.zshrc..."
+    {
+      echo ""
+      echo "$nvm_init_marker"
+      echo "$nvm_init_line1"
+      echo "$nvm_init_line2"
+      echo "$nvm_init_line3"
+    } >> "$zshrc"
+  fi
+
+  if [[ "$DRY_RUN" == true ]]; then
+    log_success "nvm 阶段演练完成"
+  fi
 }
 
 codex_claude_phase() {
