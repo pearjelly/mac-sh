@@ -219,8 +219,52 @@ brew_phase() {
 }
 
 gui_phase() {
-  phase_header "GUI 应用安装阶段"
-  # TODO: 实现 GUI 应用安装逻辑
+  phase_header "GUI 应用安装阶段（iTerm2 / Chrome）"
+
+  # iTerm2
+  if [[ -d "/Applications/iTerm.app" ]]; then
+    log_info "iTerm2 已安装，跳过"
+  else
+    log_info "正在安装 iTerm2..."
+    if [[ "$DRY_RUN" == true ]]; then
+      log_info "[演练模式] 将执行: brew install --cask iterm2"
+    else
+      brew install --cask iterm2
+      if [[ -d "/Applications/iTerm.app" ]]; then
+        log_success "iTerm2 安装完成"
+      else
+        log_error "iTerm2 安装后未找到 /Applications/iTerm.app，安装可能失败"
+      fi
+    fi
+  fi
+
+  # Google Chrome
+  if [[ -d "/Applications/Google Chrome.app" ]]; then
+    log_info "Google Chrome 已安装，跳过"
+  else
+    log_info "正在安装 Google Chrome..."
+    if [[ "$DRY_RUN" == true ]]; then
+      log_info "[演练模式] 将执行: brew install --cask google-chrome"
+    else
+      brew install --cask google-chrome
+      if [[ -d "/Applications/Google Chrome.app" ]]; then
+        log_success "Google Chrome 安装完成"
+      else
+        log_error "Google Chrome 安装后未找到 /Applications/Google Chrome.app，安装可能失败"
+      fi
+    fi
+  fi
+
+  # Gatekeeper 说明
+  log_info "------------------------------------------------------"
+  log_info "【人工步骤提示】首次打开 iTerm2 或 Chrome 时，"
+  log_info "macOS 可能弹出安全确认窗口（Gatekeeper），"
+  log_info "请点击「打开」或在「系统偏好设置 → 隐私与安全」中允许。"
+  log_info "------------------------------------------------------"
+
+  if [[ "$DRY_RUN" == true ]]; then
+    log_success "GUI 应用阶段演练完成"
+  fi
 }
 
 oh_my_zsh_phase() {
