@@ -64,6 +64,7 @@ command_exists() {
 append_if_missing() {
   local line="$1"
   local file="$2"
+  [[ "${DRY_RUN:-false}" == true ]] && { log_info "[演练模式] 将追加到 ${file}：${line}"; return; }
   grep -qF "$line" "$file" 2>/dev/null || echo "$line" >> "$file"
 }
 
@@ -154,8 +155,8 @@ precheck_phase() {
     while true; do sudo -n true; sleep 50; done &
     SUDO_KEEPALIVE_PID=$!
     # shellcheck disable=SC2064
-    trap "kill $SUDO_KEEPALIVE_PID 2>/dev/null" EXIT INT TERM
-    log_info "sudo keepalive 已启动（PID: $SUDO_KEEPALIVE_PID）"
+    trap "kill ${SUDO_KEEPALIVE_PID} 2>/dev/null" EXIT INT TERM
+    log_info "sudo keepalive 已启动（PID: ${SUDO_KEEPALIVE_PID}）"
   fi
 
   log_info "检测 Xcode Command Line Tools..."
@@ -336,7 +337,9 @@ oh_my_zsh_phase() {
     "MesloLGS NF Italic.ttf"
     "MesloLGS NF Bold Italic.ttf"
   )
-  mkdir -p "$fonts_dir"
+  if [[ "$DRY_RUN" != true ]]; then
+    mkdir -p "$fonts_dir"
+  fi
   for font in "${fonts[@]}"; do
     local font_path="$fonts_dir/$font"
     if [[ -f "$font_path" ]]; then
@@ -422,9 +425,15 @@ nvm_node_phase() {
   fi
 
   if [[ "$DRY_RUN" != true ]]; then
-    log_info "安装 LTS Node..."
-    nvm install --lts
-    nvm alias default lts/*
+    local lts_installed
+    lts_installed=$(nvm version 'lts/*' 2>/dev/null || echo "N/A")
+    if [[ "$lts_installed" == "N/A" || "$lts_installed" == "none" ]]; then
+      log_info "安装 LTS Node..."
+      nvm install --lts
+    else
+      log_info "LTS Node 已安装 ($lts_installed)，跳过"
+    fi
+    nvm alias default lts/* 2>/dev/null || true
     log_success "Node 安装完成：$(node --version)，npm：$(npm --version)"
   else
     log_info "[演练模式] 将执行: nvm install --lts && nvm alias default lts/*"
@@ -438,6 +447,8 @@ nvm_node_phase() {
 
   if grep -qF "$nvm_init_marker" "$zshrc" 2>/dev/null; then
     log_info "nvm 初始化已存在于 ~/.zshrc，跳过"
+  elif [[ "$DRY_RUN" == true ]]; then
+    log_info "[演练模式] 将写入 nvm 初始化到 ~/.zshrc"
   else
     log_info "写入 nvm 初始化到 ~/.zshrc..."
     {
@@ -510,9 +521,9 @@ codex_claude_phase() {
   log_info "   或设置 ANTHROPIC_API_KEY："
   log_info "   export ANTHROPIC_API_KEY=\"<your-anthropic-key>\""
   log_info ""
-  log_info "3. 将 API Key 永久写入 ~/.zshrc 或 ~/.zprofile（可选）："
-  log_info "   echo 'export OPENAI_API_KEY=\"xxx\"' >> ~/.zshrc"
-  log_info "   echo 'export ANTHROPIC_API_KEY=\"xxx\"' >> ~/.zshrc"
+  log_info "3. 将 API Key 持久化（可选）："
+  log_info "   请参考各工具官方文档，将 API Key 写入系统环境变量"
+  log_info "   建议使用系统 Keychain 或 .zshrc/.zprofile 自行管理"
   log_info "======================================================"
 
   if [[ "$DRY_RUN" == true ]]; then

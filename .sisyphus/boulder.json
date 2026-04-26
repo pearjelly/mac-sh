@@ -1,0 +1,144 @@
+{
+  "active_plan": "/Users/hxb/workspace/mac-sh/.sisyphus/plans/macbook-initial-setup-script.md",
+  "started_at": "2026-04-26T11:40:37.564Z",
+  "session_ids": [
+    "ses_237c3d7f3ffe2IqNxONRFf0ygV",
+    "ses_2364aa7e6ffeSfKNdRsYiyKkGx",
+    "ses_2364a7e9effemD7TTGoxkPmoPW",
+    "ses_2364a4727ffeA4DkwuiT5unF5R",
+    "ses_23633f43affehXxsp1Y1ROx7L5",
+    "ses_23633d919ffeR3t7dS47pOhhDz",
+    "ses_23633a460ffeZJK1wnv4XmYd6P",
+    "ses_23630fe0affeKPg7tINZfAJhhJ"
+  ],
+  "session_origins": {
+    "ses_237c3d7f3ffe2IqNxONRFf0ygV": "direct",
+    "ses_2364aa7e6ffeSfKNdRsYiyKkGx": "appended",
+    "ses_2364a7e9effemD7TTGoxkPmoPW": "appended",
+    "ses_2364a4727ffeA4DkwuiT5unF5R": "appended",
+    "ses_23633f43affehXxsp1Y1ROx7L5": "appended",
+    "ses_23633d919ffeR3t7dS47pOhhDz": "appended",
+    "ses_23633a460ffeZJK1wnv4XmYd6P": "appended",
+    "ses_23630fe0affeKPg7tINZfAJhhJ": "appended"
+  },
+  "plan_name": "macbook-initial-setup-script",
+  "agent": "atlas",
+  "task_sessions": {
+    "todo:1": {
+      "task_key": "todo:1",
+      "task_label": "1",
+      "task_title": "搭建主入口脚本骨架与统一执行框架",
+      "session_id": "ses_2366596b3ffen2N3jvSoSOa0vj",
+      "agent": "Sisyphus-Junior",
+      "category": "quick",
+      "updated_at": "2026-04-26T11:44:44.609Z"
+    },
+    "todo:2": {
+      "task_key": "todo:2",
+      "task_label": "2",
+      "task_title": "实现预检、管理员权限校验与 Xcode CLT 检测",
+      "session_id": "ses_236634d5effeSQv4nsKLsdb53F",
+      "agent": "Sisyphus-Junior",
+      "category": "unspecified-high",
+      "updated_at": "2026-04-26T11:49:09.874Z"
+    },
+    "todo:3": {
+      "task_key": "todo:3",
+      "task_label": "3",
+      "task_title": "实现 Homebrew 安装与当前进程 shellenv 生效",
+      "session_id": "ses_2365f397cffeoslL2aNNPDuzeI",
+      "agent": "Sisyphus-Junior",
+      "category": "unspecified-high",
+      "updated_at": "2026-04-26T11:51:43.752Z"
+    },
+    "todo:4": {
+      "task_key": "todo:4",
+      "task_label": "4",
+      "task_title": "安装 iTerm2 与 Chrome，并提供 Gatekeeper 说明",
+      "session_id": "ses_23658fe49ffebfi8YgnvqNhrNv",
+      "agent": "Sisyphus-Junior",
+      "category": "unspecified-high",
+      "updated_at": "2026-04-26T11:58:34.091Z"
+    },
+    "todo:6": {
+      "task_key": "todo:6",
+      "task_label": "6",
+      "task_title": "配置 powerlevel10k、MesloLGS NF 字体与 zsh 主题加载",
+      "session_id": "ses_236575331ffeE4RVGjZNWr2Dx5",
+      "agent": "Sisyphus-Junior",
+      "category": "unspecified-high",
+      "updated_at": "2026-04-26T12:01:21.635Z"
+    },
+    "todo:8": {
+      "task_key": "todo:8",
+      "task_label": "8",
+      "task_title": "安装 uv 并完成 PATH 收尾",
+      "session_id": "ses_23654f86dffeoMiTyzoNl7lvc1",
+      "agent": "Sisyphus-Junior",
+      "category": "unspecified-high",
+      "updated_at": "2026-04-26T12:03:20.783Z"
+    },
+    "todo:9": {
+      "task_key": "todo:9",
+      "task_label": "9",
+      "task_title": "安装 OpenAI Codex CLI、Claude Code，并整理人工授权摘要",
+      "session_id": "ses_236532315ffegN62dtAMHyKEtn",
+      "agent": "Sisyphus-Junior",
+      "category": "unspecified-high",
+      "updated_at": "2026-04-26T12:05:29.046Z"
+    },
+    "todo:10": {
+      "task_key": "todo:10",
+      "task_label": "10",
+      "task_title": "编写自检脚本、幂等性验证脚本与 GitHub Actions 校验流程",
+      "session_id": "ses_23651266fffek5x12gk1sOjor6",
+      "agent": "Sisyphus-Junior",
+      "category": "unspecified-high",
+      "updated_at": "2026-04-26T12:08:25.447Z"
+    },
+    "todo:11": {
+      "task_key": "todo:11",
+      "task_label": "11",
+      "task_title": "编写 README 与最终中文用户指引",
+      "session_id": "ses_2364e88b1ffexiRLEDDZl8tUWT",
+      "agent": "Sisyphus-Junior",
+      "category": "writing",
+      "updated_at": "2026-04-26T12:09:20.264Z"
+    },
+    "todo:12": {
+      "task_key": "todo:12",
+      "task_label": "12",
+      "task_title": "串联主脚本各阶段并统一收口用户体验",
+      "session_id": "ses_2364d76a5ffeGyTivuOA1xN9Yd",
+      "agent": "Sisyphus-Junior",
+      "category": "unspecified-high",
+      "updated_at": "2026-04-26T12:11:45.888Z"
+    },
+    "todo:13": {
+      "task_key": "todo:13",
+      "task_label": "13",
+      "task_title": "执行最终本地验证并归档证据",
+      "session_id": "ses_2364b8ac8ffelnnc2AsTW8a7i0",
+      "agent": "Sisyphus-Junior",
+      "category": "unspecified-high",
+      "updated_at": "2026-04-26T12:12:50.542Z"
+    },
+    "final-wave:f1": {
+      "task_key": "final-wave:f1",
+      "task_label": "F1",
+      "task_title": "**计划符合性审计** — `oracle`",
+      "session_id": "ses_23630fe0affeKPg7tINZfAJhhJ",
+      "agent": "oracle",
+      "updated_at": "2026-04-26T12:41:20.233Z"
+    },
+    "final-wave:f3": {
+      "task_key": "final-wave:f3",
+      "task_label": "F3",
+      "task_title": "**真实执行 QA** — `unspecified-high`",
+      "session_id": "ses_2362f48a0ffelFrlpO0djl1L2o",
+      "agent": "Sisyphus-Junior",
+      "category": "unspecified-high",
+      "updated_at": "2026-04-26T13:07:24.588Z"
+    }
+  }
+}

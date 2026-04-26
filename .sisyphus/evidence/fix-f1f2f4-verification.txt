@@ -1,0 +1,42 @@
+=== 验证时间：2026-04-26 20:22:52 ===
+
+--- bash -n 语法检查 ---
+bash -n setup-mac.sh OK
+bash -n self-check.sh OK
+bash -n test-idempotency.sh OK
+
+--- dry-run 验证 ---
+[34m[信息][0m     claude   （按提示完成浏览器 OAuth 授权）
+[34m[信息][0m 
+[34m[信息][0m 【4】运行自检确认全部安装成功：
+[34m[信息][0m     bash scripts/self-check.sh
+[34m[信息][0m ==================================================
+dry-run 退出码: 0
+
+--- self-check CI 模式 ---
+========================================
+  MacBook 安装自检报告
+========================================
+
+[SKIP] Homebrew 版本 (CI skip)
+[PASS] uv 版本
+[PASS] nvm 存在
+[PASS] Node.js 版本
+[PASS] npm 版本
+[SKIP] iTerm2 已安装 (CI skip)
+[SKIP] Google Chrome 已安装 (CI skip)
+[PASS] oh-my-zsh 已安装
+[PASS] powerlevel10k 主题已安装
+[PASS] MesloLGS NF 字体已安装
+[SKIP] Codex CLI 可用 (CI skip)
+[SKIP] Claude Code 可用 (CI skip)
+[SKIP] zsh 交互式 PATH 验证（brew+node+uv） (CI skip)
+
+========================================
+  结果：7 PASS / 0 FAIL / 6 SKIP
+========================================
+✅ 自检通过
+
+--- 幂等性验证（含 md5 校验）---
+✅ dry-run 未修改 ~/.zshrc 或 ~/.zprofile
+✅ 幂等性验证完成：连续两次 dry-run 均无报错且未修改配置文件

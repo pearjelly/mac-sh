@@ -50,6 +50,9 @@ check "powerlevel10k 主题已安装" 'test -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/c
 check "MesloLGS NF 字体已安装" 'test -f "$HOME/Library/Fonts/MesloLGS NF Regular.ttf"'
 check "Codex CLI 可用" 'command -v codex' true
 check "Claude Code 可用" 'command -v claude' true
+check "zsh 交互式 PATH 验证（brew+node+uv）" \
+  'zsh -i -c "brew --version > /dev/null && node --version > /dev/null && uv --version > /dev/null" 2>/dev/null' \
+  true
 
 echo ""
 echo "========================================"

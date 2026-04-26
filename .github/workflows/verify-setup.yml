@@ -19,6 +19,11 @@ jobs:
           bash -n scripts/self-check.sh
           bash -n scripts/test-idempotency.sh
 
+      - name: shellcheck 语法检查
+        run: |
+          brew install shellcheck
+          shellcheck setup-mac.sh scripts/self-check.sh scripts/test-idempotency.sh
+
       - name: 运行 setup-mac.sh（dry-run 模式）
         run: bash setup-mac.sh --dry-run
 
