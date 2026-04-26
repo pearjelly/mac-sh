@@ -225,7 +225,43 @@ gui_phase() {
 
 oh_my_zsh_phase() {
   phase_header "Oh My Zsh 安装阶段"
-  # TODO: 实现 oh-my-zsh 安装逻辑
+
+  local timestamp
+  timestamp=$(date +%Y%m%d%H%M%S)
+
+  if [[ -f "$HOME/.zshrc" ]]; then
+    log_info "备份 ~/.zshrc -> ~/.zshrc.backup.$timestamp"
+    [[ "$DRY_RUN" != true ]] && cp "$HOME/.zshrc" "$HOME/.zshrc.backup.$timestamp"
+  fi
+  if [[ -f "$HOME/.zprofile" ]]; then
+    log_info "备份 ~/.zprofile -> ~/.zprofile.backup.$timestamp"
+    [[ "$DRY_RUN" != true ]] && cp "$HOME/.zprofile" "$HOME/.zprofile.backup.$timestamp"
+  fi
+
+  if [[ -d "$HOME/.oh-my-zsh" ]]; then
+    log_info "oh-my-zsh 已安装，跳过"
+  else
+    log_info "正在安装 oh-my-zsh（无人值守模式）..."
+    if [[ "$DRY_RUN" == true ]]; then
+      log_info "[演练模式] 将执行 oh-my-zsh --unattended 安装"
+    else
+      sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    fi
+  fi
+
+  if [[ "$DRY_RUN" != true ]]; then
+    if [[ -d "$HOME/.oh-my-zsh" ]]; then
+      log_success "oh-my-zsh 安装完成"
+    else
+      log_error "oh-my-zsh 安装后目录 $HOME/.oh-my-zsh 不存在，安装失败"
+    fi
+    # 确认脚本中未调用 chsh
+    if grep -q "chsh" "$HOME/.oh-my-zsh/tools/install.sh" 2>/dev/null; then
+      log_warn "注意：oh-my-zsh 安装脚本中检测到 chsh，但我们使用了 --unattended 跳过"
+    fi
+  else
+    log_success "oh-my-zsh 阶段演练完成"
+  fi
 }
 
 p10k_fonts_phase() {
