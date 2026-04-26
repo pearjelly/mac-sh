@@ -100,7 +100,83 @@ retry() {
 # 阶段函数占位
 precheck_phase() {
   phase_header "预检阶段"
-  # TODO: 实现预检逻辑
+
+  log_info "检测网络连通性..."
+  if ! curl -s --head --max-time 5 https://brew.sh > /dev/null 2>&1; then
+    log_error "网络不可用，无法访问 https://brew.sh，请检查网络连接后重试"
+  fi
+  log_info "网络连通性正常"
+
+  log_info "检测处理器架构..."
+  local arch
+  arch=$(uname -m)
+  if [[ "$arch" != "arm64" ]]; then
+    log_warn "当前处理器架构为 $arch，非 Apple Silicon（arm64），后续部分操作可能不兼容"
+  else
+    log_info "Apple Silicon (arm64) 检测通过"
+  fi
+
+  log_info "检测 macOS 版本..."
+  local os_version
+  os_version=$(sw_vers -productVersion)
+  local major_version
+  major_version=$(echo "$os_version" | cut -d. -f1)
+  if [[ "$major_version" -lt 12 ]]; then
+    log_warn "当前 macOS 版本为 $os_version，低于 12.0（Monterey），部分功能可能不可用"
+  else
+    log_info "macOS 版本 $os_version 检测通过"
+  fi
+
+  log_info "检测当前 Shell..."
+  if [[ "$SHELL" != *"zsh"* ]]; then
+    log_warn "当前 Shell 为 $SHELL，建议使用 zsh 以获得最佳体验"
+  else
+    log_info "Shell 检测通过：$SHELL"
+  fi
+
+  log_info "检测 sudo 权限..."
+  if ! sudo -n true 2>/dev/null; then
+    if [[ "$DRY_RUN" == true ]]; then
+      log_warn "sudo 凭证未缓存（演练模式，跳过交互式验证）"
+    elif [[ -t 0 ]]; then
+      log_info "需要 sudo 权限，请输入密码："
+      if ! sudo true; then
+        log_error "无法获取 sudo 权限，请确保当前用户有 sudo 权限后重试"
+      fi
+    else
+      log_error "无法获取 sudo 权限，且当前没有交互式终端。请先运行 sudo -v 缓存凭证后重试"
+    fi
+  fi
+  log_info "sudo 权限检测通过"
+
+  if [[ "$DRY_RUN" != true ]]; then
+    log_info "启动 sudo keepalive 后台进程..."
+    while true; do sudo -n true; sleep 50; done &
+    SUDO_KEEPALIVE_PID=$!
+    # shellcheck disable=SC2064
+    trap "kill $SUDO_KEEPALIVE_PID 2>/dev/null" EXIT INT TERM
+    log_info "sudo keepalive 已启动（PID: $SUDO_KEEPALIVE_PID）"
+  fi
+
+  log_info "检测 Xcode Command Line Tools..."
+  if ! xcode-select -p > /dev/null 2>&1; then
+    log_warn "Xcode Command Line Tools 未安装"
+    if [[ "$DRY_RUN" != true ]]; then
+      log_info "正在触发 Xcode Command Line Tools 安装（将弹出 GUI 安装窗口）..."
+      xcode-select --install 2>/dev/null || true
+      read -r -p "请在弹出的窗口中完成 Xcode Command Line Tools 安装，完成后按 Enter 继续... "
+    else
+      log_info "[演练模式] 将执行: xcode-select --install"
+    fi
+  else
+    log_info "Xcode Command Line Tools 已安装：$(xcode-select -p)"
+  fi
+
+  if [[ "$DRY_RUN" == true ]]; then
+    log_success "预检通过（演练模式）"
+  else
+    log_success "预检通过"
+  fi
 }
 
 brew_phase() {
