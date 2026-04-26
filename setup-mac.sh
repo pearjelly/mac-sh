@@ -181,7 +181,41 @@ precheck_phase() {
 
 brew_phase() {
   phase_header "Homebrew 安装阶段"
-  # TODO: 实现 brew 安装逻辑
+
+  local brew_bin="/opt/homebrew/bin/brew"
+
+  if [[ -x "$brew_bin" ]]; then
+    log_info "Homebrew 已安装，跳过安装"
+  else
+    log_info "正在安装 Homebrew（低交互模式）..."
+    if [[ "$DRY_RUN" == true ]]; then
+      log_info "[演练模式] 将执行: NONINTERACTIVE=1 /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+    else
+      NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
+  fi
+
+  if [[ -x "$brew_bin" ]]; then
+    log_info "加载 Homebrew shellenv 到当前进程..."
+    eval "$("$brew_bin" shellenv)"
+  elif [[ "$DRY_RUN" != true ]]; then
+    log_error "Homebrew 安装后仍未找到 $brew_bin，安装失败"
+  fi
+
+  local zprofile="$HOME/.zprofile"
+  local shellenv_line='eval "$(/opt/homebrew/bin/brew shellenv)"'
+  log_info "确保 Homebrew shellenv 写入 ~/.zprofile..."
+  append_if_missing "$shellenv_line" "$zprofile"
+
+  if [[ "$DRY_RUN" != true ]]; then
+    if command_exists brew; then
+      log_success "Homebrew 安装完成：$(brew --version | head -1)"
+    else
+      log_error "brew 命令仍不可用，请检查 /opt/homebrew/bin 是否在 PATH 中"
+    fi
+  else
+    log_success "Homebrew 阶段演练完成"
+  fi
 }
 
 gui_phase() {
