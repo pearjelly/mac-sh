@@ -561,17 +561,54 @@ uv_phase() {
 }
 
 self_check_phase() {
-  phase_header "自检阶段"
-  # TODO: 实现自检逻辑
+  phase_header "安装自检阶段"
+
+  local script_dir
+  script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  local check_script="$script_dir/scripts/self-check.sh"
+
+  if [[ "$DRY_RUN" == true ]]; then
+    log_info "[演练模式] 安装完成后运行 bash scripts/self-check.sh 进行自检"
+    return
+  fi
+
+  if [[ -f "$check_script" ]]; then
+    log_info "运行安装自检..."
+    bash "$check_script" || log_warn "自检发现部分问题，请查看上方 [FAIL] 项"
+  else
+    log_warn "未找到自检脚本 $check_script，跳过自检"
+  fi
 }
 
 manual_steps_phase() {
-  phase_header "人工步骤摘要"
-  # TODO: 实现人工步骤摘要逻辑
+  phase_header "安装完成 — 人工步骤汇总"
+
+  log_info "=================================================="
+  log_info "🎉 自动安装阶段完成！"
+  log_info ""
+  log_info "以下步骤需要手动完成："
+  log_info ""
+  log_info "【1】打开 iTerm2，设置终端字体："
+  log_info "    Preferences → Profiles → Text → 字体改为「MesloLGS NF」"
+  log_info ""
+  log_info "【2】配置 OpenAI Codex CLI："
+  log_info "    export OPENAI_API_KEY=\"<your-key>\""
+  log_info "    codex"
+  log_info ""
+  log_info "【3】登录 Claude Code："
+  log_info "    claude   （按提示完成浏览器 OAuth 授权）"
+  log_info ""
+  log_info "【4】运行自检确认全部安装成功："
+  log_info "    bash scripts/self-check.sh"
+  log_info "=================================================="
 }
 
 # 主函数
 main() {
+  log_info "=================================================="
+  log_info "  MacBook 开发环境自动安装脚本"
+  log_info "  开始时间：$(date '+%Y-%m-%d %H:%M:%S')"
+  log_info "=================================================="
   if [[ "$DRY_RUN" == true ]]; then
     log_info "演练模式：将输出各阶段概要，不执行实际操作"
   fi
