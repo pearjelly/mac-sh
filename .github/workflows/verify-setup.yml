@@ -1,0 +1,29 @@
+name: 验证安装脚本
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    name: 验证脚本语法与演练执行
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 验证脚本语法（bash -n）
+        run: |
+          bash -n setup-mac.sh
+          bash -n scripts/self-check.sh
+          bash -n scripts/test-idempotency.sh
+
+      - name: 运行 setup-mac.sh（dry-run 模式）
+        run: bash setup-mac.sh --dry-run
+
+      - name: 运行幂等性验证（dry-run × 2）
+        run: bash scripts/test-idempotency.sh
+
+      - name: 运行自检（CI 模式）
+        run: bash scripts/self-check.sh --ci
