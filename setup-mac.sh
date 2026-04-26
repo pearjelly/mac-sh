@@ -460,8 +460,43 @@ codex_claude_phase() {
 }
 
 uv_phase() {
-  phase_header "UV 安装阶段"
-  # TODO: 实现 uv 安装逻辑
+  phase_header "uv Python 包管理工具安装阶段"
+
+  local uv_bin="$HOME/.local/bin/uv"
+
+  # 安装 uv
+  if [[ -f "$uv_bin" ]]; then
+    log_info "uv 已安装（${uv_bin}），跳过"
+  else
+    log_info "正在安装 uv..."
+    if [[ "$DRY_RUN" == true ]]; then
+      log_info "[演练模式] 将执行: curl -LsSf https://astral.sh/uv/install.sh | sh"
+    else
+      curl -LsSf https://astral.sh/uv/install.sh | sh
+    fi
+  fi
+
+  # 在当前进程中使 uv 可用
+  if [[ -f "$uv_bin" ]]; then
+    export PATH="$HOME/.local/bin:$PATH"
+    log_info "uv 已加载到当前进程 PATH"
+  fi
+
+  # 幂等写入 ~/.zprofile
+  local zprofile="$HOME/.zprofile"
+  append_if_missing 'export PATH="$HOME/.local/bin:$PATH"' "$zprofile"
+  log_info "PATH($HOME/.local/bin) 已确保写入 ~/.zprofile"
+
+  # 验证
+  if [[ "$DRY_RUN" != true ]]; then
+    if command -v uv &>/dev/null; then
+      log_success "uv 安装完成：$(uv --version)"
+    else
+      log_error "uv 安装后仍无法找到 uv 命令，请检查 PATH 配置"
+    fi
+  else
+    log_success "uv 阶段演练完成"
+  fi
 }
 
 self_check_phase() {
