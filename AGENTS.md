@@ -4,6 +4,8 @@
 **Commit:** aae63b5
 **Branch:** main
 
+## 使用中文
+
 ## OVERVIEW
 Apple Silicon MacBook 一键开发环境安装脚本（pure bash，无外部依赖）。安装 brew/uv/nvm/iTerm2/Chrome/oh-my-zsh/powerlevel10k/Codex CLI/Claude Code，幂等可重复执行。
 
